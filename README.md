@@ -27,3 +27,8 @@ $ python cb_bot.py
 
 * [集思录](https://www.jisilu.cn/data/cbnew/#pre)
 * [东方财富](http://data.eastmoney.com/kzz/default.html)
+
+
+## Telegram Channel
+
+<https://t.me/cbnew>
