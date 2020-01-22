@@ -76,7 +76,7 @@ def format_cell(cell: Dict[str, str]) -> str:
         else escape_text("---")
     )
     return f"""
-    名   称: {escape_text(cell["stock_nm"])}
+    名   称: {escape_text(cell["stock_nm"] + '(' + cell["bond_nm"] + ')')}
     债券代码: [{cell["bond_id"]}](https://www.jisilu.cn/data/convert_bond_detail/{cell["bond_id"]})
     证券代码: [{cell["stock_id"]}](https://www.jisilu.cn/data/stock/{cell["stock_id"]})
     现    价: {escape_text(cell["price"])}
