@@ -20,6 +20,7 @@ from telegram.ext import (
     MessageHandler,
     Filters,
 )
+from telegram.ext.jobqueue import Days
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -190,6 +191,7 @@ def main() -> None:
         get_cb_trade_data,
         # 北京时间8点45分触发， 调整为UTC时间
         time=time(8 - 8, 45),
+        days=(Days.Mon, Days.THU, Days.WED, Days.THU, Days.FRI),
         context={"channel_id": channel_id},
     )
     start_handler = CommandHandler("start", start)
