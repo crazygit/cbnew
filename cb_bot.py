@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+import datetime
 import logging
-from datetime import date, time
+import time
 from typing import Tuple, List, Dict
 
 import requests
@@ -48,7 +49,7 @@ def get_cb_info() -> Tuple[List, List]:
 
     for row in response.json()["rows"]:
         cell = row["cell"]
-        today = date.today().isoformat()
+        today = datetime.date.today().isoformat()
         # 当日可申购债券
         if cell["apply_date"] == today:
             apply_cb.append(cell)
@@ -115,8 +116,9 @@ def escape_text(text: str) -> str:
 
 
 def get_message_text() -> str:
+    today = datetime.date.today().isoformat()
+    logger.info(f"get message at {today}")
     apply_cb, listed_cb = get_cb_info()
-    today = date.today().isoformat()
     text = ""
     text += f"*日期*: {escape_text(today)}\n\n"
     if apply_cb:
@@ -139,14 +141,27 @@ def get_message_text() -> str:
 def get_cb_trade_data(context: CallbackContext) -> None:
     text = get_message_text()
     logger.info(text)
-    context.bot.send_message(
-        chat_id=context.job.context.get("channel_id"),
-        # parse_mode=ParseMode.MARKDOWN,
-        # note: hardcode, 当前SDK不支持MarkdwonV2模式
-        parse_mode="MarkdownV2",
-        text=text,
-        disable_web_page_preview=True,
-    )
+    retry_count = 0
+    while True:
+        try:
+            context.bot.send_message(
+                chat_id=context.job.context.get("channel_id"),
+                # parse_mode=ParseMode.MARKDOWN,
+                # note: hardcode, 当前SDK不支持MarkdwonV2模式
+                parse_mode="MarkdownV2",
+                text=text,
+                disable_web_page_preview=True,
+                timeout=5,
+            )
+            break
+        except Exception as e:
+            logger.exception(e)
+            if retry_count >= 3:
+                logger.info("Give up retrying...")
+                break
+            logger.info("Retrying after 10 seconds...")
+            time.sleep(10)
+            retry_count += 1
 
 
 def error_callback(update: Updater, context: CallbackContext) -> None:
@@ -189,9 +204,9 @@ def main() -> None:
     dispatcher = updater.dispatcher
     updater.job_queue.run_daily(
         get_cb_trade_data,
-        # 北京时间8点45分触发， 调整为UTC时间
-        time=time(8 - 8, 45),
-        days=(Days.MON, Days.THU, Days.WED, Days.THU, Days.FRI),
+        # 北京时间9点触发
+        time=datetime.time(9 - 8, 00),
+        days=(Days.MON, Days.TUE, Days.WED, Days.THU, Days.FRI),
         context={"channel_id": channel_id},
     )
     start_handler = CommandHandler("start", start)
