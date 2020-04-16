@@ -1,3 +1,7 @@
+[DEPRECATED]
+
+Move to <https://github.com/crazygit/post-telegram-action>
+
 ## Convertible bond
 
 Telegram打新债信息通知机器人
